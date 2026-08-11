@@ -42,6 +42,10 @@ internal sealed class StrategyDefinition
         var bin = EnsureTrailingSep(binDir);
         var lists = EnsureTrailingSep(listsDir);
 
+        // winws/cygwin стабильнее на forward-slash путях
+        bin = bin.Replace('\\', '/');
+        lists = lists.Replace('\\', '/');
+
         foreach (var a in Args)
         {
             yield return a

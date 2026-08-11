@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace DpiTray;
 
 internal sealed class TrayApp : ApplicationContext
@@ -5,6 +7,7 @@ internal sealed class TrayApp : ApplicationContext
     private readonly string _binDir;
     private readonly string _listsDir;
     private readonly string _configPath;
+    private readonly string _logDir;
     private readonly AppConfig _config;
     private readonly WinwsRunner _runner;
     private readonly NotifyIcon _tray;
@@ -19,13 +22,15 @@ internal sealed class TrayApp : ApplicationContext
         string listsDir,
         string strategiesDir,
         string configPath,
+        string logDir,
         AppConfig config)
     {
         _binDir = binDir;
         _listsDir = listsDir;
         _configPath = configPath;
+        _logDir = logDir;
         _config = config;
-        _runner = new WinwsRunner(binDir);
+        _runner = new WinwsRunner(binDir, logDir);
         _strategies = StrategyDefinition.LoadAll(strategiesDir);
 
         if (_strategies.Count == 0)
@@ -126,6 +131,14 @@ internal sealed class TrayApp : ApplicationContext
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(autoItem);
         menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add(new ToolStripMenuItem("Открыть лог winws", null, (_, _) =>
+        {
+            var path = _runner.LastLogPath ?? Path.Combine(_logDir, "winws-last.log");
+            if (File.Exists(path))
+                Process.Start(new ProcessStartInfo { FileName = path, UseShellExecute = true });
+            else
+                MessageBox.Show("Лог ещё не создан. Сначала нажмите Старт.", "DpiTray");
+        }));
         menu.Items.Add(new ToolStripMenuItem("Выход", null, (_, _) => ExitApp()));
         return menu;
     }

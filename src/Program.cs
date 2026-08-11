@@ -29,36 +29,29 @@ internal static class Program
             return;
         }
 
-        var root = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        var binDir = Path.Combine(root, "bin");
-        var listsDir = Path.Combine(root, "lists");
-        var strategiesDir = Path.Combine(root, "strategies");
-        var configPath = Path.Combine(root, "config.json");
+        RuntimePaths.EnsureRuntimeLayout(out var binDir, out var listsDir, out var strategiesDir, out var logDir);
+        var configPath = Path.Combine(RuntimePaths.GetRuntimeRoot(), "config.json");
 
-        Directory.CreateDirectory(binDir);
-        Directory.CreateDirectory(listsDir);
-        Directory.CreateDirectory(strategiesDir);
+        // Миграция старого конфига из папки exe (если был)
+        var oldConfig = Path.Combine(RuntimePaths.GetAppDirectory(), "config.json");
+        if (!File.Exists(configPath) && File.Exists(oldConfig))
+            File.Copy(oldConfig, configPath, overwrite: false);
 
         if (!File.Exists(Path.Combine(binDir, "winws.exe")))
         {
             MessageBox.Show(
-                "Не найден bin\\winws.exe.\nПересоберите проект через build.bat — он скачает runtime автоматически.",
+                "Не найден winws.exe в runtime.\nЗапустите build.bat и убедитесь, что рядом с DpiTray.exe есть папка bin.",
                 "DpiTray", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
-        try
-        {
-            WinDivertHelper.EnsureInstalled(binDir);
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show(
-                "Не удалось проверить/установить WinDivert:\n" + ex.Message,
-                "DpiTray", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
+        // Мягкая подготовка WinDivert из ASCII-пути. Не блокируем запуск:
+        // winws сам поднимает драйвер при Старт, если службы ещё нет.
+        var windivertWarn = WinDivertHelper.EnsureReady(binDir);
+        if (!string.IsNullOrEmpty(windivertWarn))
+            MessageBox.Show(windivertWarn, "DpiTray", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
         var config = AppConfig.Load(configPath);
-        Application.Run(new TrayApp(binDir, listsDir, strategiesDir, configPath, config));
+        Application.Run(new TrayApp(binDir, listsDir, strategiesDir, configPath, logDir, config));
     }
 
     private static bool IsAdministrator()
@@ -77,7 +70,7 @@ internal static class Program
                 FileName = exe,
                 UseShellExecute = true,
                 Verb = "runas",
-                WorkingDirectory = AppContext.BaseDirectory
+                WorkingDirectory = RuntimePaths.GetAppDirectory()
             });
         }
         catch
