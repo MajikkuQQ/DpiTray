@@ -1,0 +1,8 @@
+bin/
+obj/
+dist/
+.vs/
+*.user
+*.suo
+payload/bin/*
+!payload/bin/.gitkeep
