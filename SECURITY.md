@@ -20,4 +20,4 @@ WinDivert нужен для работы на уровне сети, поэто�
 
 ## Благодарности
 
-Спасибо авторам [zapret](https://github.com/bol-van/zapret), [WinDivert](https://github.com/basil00/WinDivert), [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) и [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy).
+Спасибо **[bol-van](https://github.com/bol-van)** (zapret), **[basil00](https://github.com/basil00)** (WinDivert) и **[Flowseal](https://github.com/Flowseal)** (zapret-discord-youtube, tg-ws-proxy).

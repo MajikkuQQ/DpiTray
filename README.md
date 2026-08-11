@@ -47,11 +47,10 @@ dist\START.bat
 
 ## Благодарности
 
-DpiTray — просто удобная обёртка. Спасибо авторам проектов, без которых этого бы не было:
+DpiTray — просто удобная обёртка. Спасибо людям, без чьих проектов этого бы не было:
 
-- [bol-van/zapret](https://github.com/bol-van/zapret) — движок обхода DPI (`winws` и идеи стратегий)
-- [basil00/WinDivert](https://github.com/basil00/WinDivert) — перехват пакетов в Windows
-- [Flowseal/zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) — готовые бинарники и рабочие профили для Discord/YouTube
-- [Flowseal/tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy) — локальный прокси для Telegram
+- **[bol-van](https://github.com/bol-van)** — автор [zapret](https://github.com/bol-van/zapret) (`winws` и идеи стратегий)
+- **[basil00](https://github.com/basil00)** — автор [WinDivert](https://github.com/basil00/WinDivert)
+- **[Flowseal](https://github.com/Flowseal)** — автор [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) и [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy)
 
-Если пользуетесь DpiTray — поддержите и оригинальные проекты.
+Если DpiTray помог — поддержите и их.
