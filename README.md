@@ -16,10 +16,10 @@ dist\START.bat
 
 | Стратегия | Назначение |
 |-----------|------------|
-| Рекомендуемая | YouTube + Discord + Apps |
+| **YouTube + Discord** | основная: рабочие профили YT и Discord в одной стратегии |
 | Только YouTube | минимальный профиль |
-| **Discord FIX** | update/login (SIMPLE FAKE ALT / badseq) — пробуй первой при update failed |
-| Discord ALT2 | запасной профиль (fake + ts) |
+| Discord FIX | только Discord (badseq) |
+| Расширенная | много сайтов РФ-throttle (+можно вместе с TG); без voice UDP Discord |
 
 ## Telegram Proxy
 
@@ -42,8 +42,9 @@ dist\START.bat
 - `lists/list-google.txt` — YouTube
 - `lists/list-discord.txt` — Discord / CDN
 - `lists/list-apps.txt` — StatLocker, Deadlock API, Deadlock Mod Manager, GameBanana
+- `lists/list-extended.txt` — расширенный hostlist для стратегии «Расширенная»
 
-Домены для приложений можно дописать в `list-apps.txt`.
+Домены можно дописать в нужный `.txt` (для расширенной — в `list-extended.txt`).
 
 ## Discord update failed
 

@@ -1,14 +1,20 @@
 {
   "id": "recommended",
-  "name": "Рекомендуемая (YT + Discord + Apps)",
+  "name": "YouTube + Discord (основная)",
   "args": [
     "--wf-tcp=80,443,2053,2083,2087,2096,8443",
     "--wf-udp=443,19294-19344,50000-50100",
 
     "--filter-udp=443",
     "--hostlist={LISTS}list-google.txt",
+    "--dpi-desync=fake",
+    "--dpi-desync-repeats=4",
+    "--dpi-desync-cutoff=n2",
+    "--dpi-desync-fake-quic={BIN}quic_initial_www_google_com.bin",
+    "--new",
+
+    "--filter-udp=443",
     "--hostlist={LISTS}list-discord.txt",
-    "--hostlist={LISTS}list-apps.txt",
     "--dpi-desync=fake",
     "--dpi-desync-repeats=6",
     "--dpi-desync-fake-quic={BIN}quic_initial_www_google_com.bin",
@@ -50,16 +56,6 @@
     "--dpi-desync-badseq-increment=2",
     "--dpi-desync-fake-tls={BIN}stun2.bin",
     "--dpi-desync-fake-tls={BIN}tls_clienthello_www_google_com.bin",
-    "--dpi-desync-fake-http={BIN}tls_clienthello_max_ru.bin",
-    "--new",
-
-    "--filter-tcp=443",
-    "--hostlist={LISTS}list-apps.txt",
-    "--dpi-desync=fake",
-    "--dpi-desync-repeats=4",
-    "--dpi-desync-cutoff=n3",
-    "--dpi-desync-fooling=badseq",
-    "--dpi-desync-badseq-increment=2",
-    "--dpi-desync-fake-tls={BIN}tls_clienthello_www_google_com.bin"
+    "--dpi-desync-fake-http={BIN}tls_clienthello_max_ru.bin"
   ]
 }
