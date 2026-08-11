@@ -1,0 +1,3 @@
+﻿Official source: https://github.com/Flowseal/tg-ws-proxy/releases/tag/v1.9.1
+File: TgWsProxy_windows.exe
+SHA256: 2823fcda2cdd209eb595cba75587c0fdbe40d6d863eed482794af1cca0c1b6fc

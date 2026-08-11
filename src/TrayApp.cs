@@ -39,6 +39,17 @@ internal sealed class TrayApp : ApplicationContext
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
+        var legacy = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "general", "general-alt", "simple-https", "simple-fake-alt",
+            "fake-tls-auto", "discord-alt"
+        };
+        if (legacy.Contains(_config.SelectedStrategy))
+        {
+            _config.SelectedStrategy = "recommended";
+            _config.Save(_configPath);
+        }
+
         if (!_strategies.Any(s => s.Id.Equals(_config.SelectedStrategy, StringComparison.OrdinalIgnoreCase))
             && _strategies.Count > 0)
         {
@@ -64,6 +75,7 @@ internal sealed class TrayApp : ApplicationContext
         _statusTimer.Start();
 
         SyncAutoStartMenu();
+        SyncTgMenu();
         RefreshStatus();
 
         if (_config.AutoStart && _config.AutoStartStrategy)
@@ -99,7 +111,7 @@ internal sealed class TrayApp : ApplicationContext
         menu.Items.Add(strategiesItem);
         menu.Items.Add(new ToolStripSeparator());
 
-        var startItem = new ToolStripMenuItem("Старт", null, (_, _) =>
+        var startItem = new ToolStripMenuItem("Старт (zapret + TG)", null, (_, _) =>
         {
             try { StartSelected(); }
             catch (Exception ex)
@@ -108,10 +120,9 @@ internal sealed class TrayApp : ApplicationContext
             }
         }) { Name = "start" };
 
-        var stopItem = new ToolStripMenuItem("Стоп", null, (_, _) =>
+        var stopItem = new ToolStripMenuItem("Стоп (всё)", null, (_, _) =>
         {
-            _runner.Stop();
-            RefreshStatus();
+            StopAll();
         }) { Name = "stop" };
 
         var autoItem = new ToolStripMenuItem("Автозапуск с Windows")
@@ -131,6 +142,47 @@ internal sealed class TrayApp : ApplicationContext
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(autoItem);
         menu.Items.Add(new ToolStripSeparator());
+
+        var tgItem = new ToolStripMenuItem("Telegram (TgWsProxy)") { Name = "tgroot" };
+
+        var tgTogether = new ToolStripMenuItem("Запускать вместе со Старт")
+        {
+            Name = "tgTogether",
+            CheckOnClick = true,
+            Checked = _config.StartTgWithZapret
+        };
+        tgTogether.CheckedChanged += (_, _) =>
+        {
+            _config.StartTgWithZapret = tgTogether.Checked;
+            _config.Save(_configPath);
+        };
+
+        tgItem.DropDownItems.Add(tgTogether);
+        tgItem.DropDownItems.Add(new ToolStripSeparator());
+        tgItem.DropDownItems.Add(new ToolStripMenuItem("Старт только TgWsProxy", null, (_, _) =>
+        {
+            try
+            {
+                EnsureTgProxyPresent();
+                TgProxyHelper.Start();
+                RefreshStatus();
+                _tray.ShowBalloonTip(3000, "DpiTray",
+                    "TgWsProxy запущен.\nTelegram → Настройки → Данные → Прокси:\nMTProto 127.0.0.1:1443\n(secret смотри в окне TgWsProxy)",
+                    ToolTipIcon.Info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "DpiTray", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }));
+        tgItem.DropDownItems.Add(new ToolStripMenuItem("Стоп только TgWsProxy", null, (_, _) =>
+        {
+            TgProxyHelper.Stop();
+            RefreshStatus();
+        }));
+        menu.Items.Add(tgItem);
+
+        menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(new ToolStripMenuItem("Открыть лог winws", null, (_, _) =>
         {
             var path = _runner.LastLogPath ?? Path.Combine(_logDir, "winws-last.log");
@@ -141,6 +193,19 @@ internal sealed class TrayApp : ApplicationContext
         }));
         menu.Items.Add(new ToolStripMenuItem("Выход", null, (_, _) => ExitApp()));
         return menu;
+    }
+
+    private void EnsureTgProxyPresent()
+    {
+        if (TgProxyHelper.IsInstalled())
+            return;
+
+        var appCopy = Path.Combine(RuntimePaths.GetAppDirectory(), "tgproxy", "TgWsProxy_windows.exe");
+        if (!File.Exists(appCopy))
+            return;
+
+        Directory.CreateDirectory(TgProxyHelper.GetProxyDir());
+        File.Copy(appCopy, TgProxyHelper.GetExePath(), overwrite: true);
     }
 
     private void SelectStrategy(string id)
@@ -178,16 +243,40 @@ internal sealed class TrayApp : ApplicationContext
     {
         var strategy = GetSelectedStrategy();
         _runner.Start(strategy, _listsDir);
+
+        var tip = "Запущено: " + strategy.Name;
+
+        if (_config.StartTgWithZapret)
+        {
+            try
+            {
+                EnsureTgProxyPresent();
+                TgProxyHelper.Start();
+                tip += "\n+ TgWsProxy (127.0.0.1:1443)";
+            }
+            catch (Exception ex)
+            {
+                tip += "\nTgWsProxy не стартовал: " + ex.Message;
+            }
+        }
+
         RefreshStatus();
-        _tray.ShowBalloonTip(2000, "DpiTray", $"Запущено: {strategy.Name}", ToolTipIcon.Info);
+        _tray.ShowBalloonTip(3000, "DpiTray", tip, ToolTipIcon.Info);
+    }
+
+    private void StopAll()
+    {
+        _runner.Stop();
+        if (_config.StartTgWithZapret || TgProxyHelper.IsRunning())
+            TgProxyHelper.Stop();
+        RefreshStatus();
     }
 
     private void ToggleStartStop()
     {
-        if (_runner.IsRunning)
+        if (_runner.IsRunning || TgProxyHelper.IsRunning())
         {
-            _runner.Stop();
-            RefreshStatus();
+            StopAll();
             return;
         }
 
@@ -210,22 +299,39 @@ internal sealed class TrayApp : ApplicationContext
             AutoStartHelper.SetEnabled(true);
     }
 
+    private void SyncTgMenu()
+    {
+        if (_menu.Items["tgroot"] is not ToolStripMenuItem tgRoot)
+            return;
+        if (tgRoot.DropDownItems["tgTogether"] is ToolStripMenuItem together)
+            together.Checked = _config.StartTgWithZapret;
+    }
+
     private void RefreshStatus()
     {
-        var running = _runner.IsRunning;
-        _tray.Icon = running ? _iconRunning : _iconStopped;
-        _tray.Text = running ? "DpiTray — запущен" : "DpiTray — остановлен";
+        var zapret = _runner.IsRunning;
+        var tg = TgProxyHelper.IsRunning();
+        var any = zapret || tg;
+
+        _tray.Icon = any ? _iconRunning : _iconStopped;
+
+        var parts = new List<string>();
+        if (zapret) parts.Add("zapret");
+        if (tg) parts.Add("TG");
+        _tray.Text = parts.Count == 0
+            ? "DpiTray — остановлен"
+            : "DpiTray — " + string.Join(" + ", parts);
 
         if (_menu.Items["start"] is ToolStripMenuItem startItem)
-            startItem.Enabled = !running;
+            startItem.Enabled = !zapret;
         if (_menu.Items["stop"] is ToolStripMenuItem stopItem)
-            stopItem.Enabled = running;
+            stopItem.Enabled = any;
     }
 
     private void ExitApp()
     {
         _statusTimer.Stop();
-        _runner.Stop();
+        StopAll();
         _tray.Visible = false;
         _tray.Dispose();
         _menu.Dispose();

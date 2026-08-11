@@ -6,13 +6,19 @@ namespace DpiTray;
 internal sealed class AppConfig
 {
     [JsonPropertyName("selectedStrategy")]
-    public string SelectedStrategy { get; set; } = "general";
+    public string SelectedStrategy { get; set; } = "discord";
 
     [JsonPropertyName("autoStart")]
     public bool AutoStart { get; set; }
 
     [JsonPropertyName("autoStartStrategy")]
     public bool AutoStartStrategy { get; set; } = true;
+
+    /// <summary>
+    /// Запускать TgWsProxy вместе с кнопкой «Старт» (и останавливать со «Стоп»).
+    /// </summary>
+    [JsonPropertyName("startTgWithZapret")]
+    public bool StartTgWithZapret { get; set; } = true;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

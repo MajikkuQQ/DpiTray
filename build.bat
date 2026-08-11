@@ -47,6 +47,12 @@ if errorlevel 1 (
   goto :fail
 )
 
+echo [INFO] Скачиваю официальный TgWsProxy (SHA256 check)...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\fetch-tgproxy.ps1"
+if errorlevel 1 (
+  echo [WARN] TgWsProxy не скачался — Telegram Proxy в трее будет недоступен
+)
+
 echo.
 echo [INFO] Публикую single-file EXE...
 dotnet publish "src\DpiTray.csproj" -c Release -r win-x64 --self-contained true ^
@@ -71,12 +77,18 @@ if errorlevel 1 (
 )
 
 if exist "README.md" copy /Y "README.md" "dist\README.md" >nul
+copy /Y "%~dp0scripts\START.bat" "dist\START.bat" >nul
+
+rem Убираем старые дубли батников из dist
+for %%F in (
+  "ЗАПУСК.bat" "ПЕРЕЗАПУСК.bat" "RESTART.bat" "DISCORD_FIX.bat"
+  "СБРОС_DISCORD_CACHE.bat" "ЧИТАЙ_ЛОГИ.txt"
+) do if exist "dist\%%~F" del /q "dist\%%~F" >nul 2>&1
 
 echo.
 echo ============================================
 echo  ГОТОВО: %cd%\dist\DpiTray.exe
-echo  Runtime: C:\ProgramData\DpiTray
-echo  Запускай: dist\ЗАПУСК.bat
+echo  Запуск:  dist\START.bat
 echo ============================================
 echo.
 echo Нажмите любую клавишу, чтобы закрыть окно...
