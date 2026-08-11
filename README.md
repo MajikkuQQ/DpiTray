@@ -1,44 +1,54 @@
 # DpiTray
 
-Удобный трей-лаунчер для Windows: запускает `winws` со готовыми стратегиями обхода DPI (YouTube, Discord, общие сайты), ставит WinDivert при первом запуске, сохраняет настройки и умеет автозагрузку.
+Трей-лаунчер для Windows: запускает `winws` с узкими hostlist-стратегиями (меньше пинга и поломок интернета).
 
-## Быстрый старт
+## Запуск
 
 ```bat
 build.bat
+dist\START.bat
 ```
 
-Готовый файл: `dist\DpiTray.exe`
+В `START.bat` одно меню: запуск / починить Discord / логи.  
+В трее по умолчанию: **Рекомендуемая**.
 
-Запустите exe от администратора (UAC), ПКМ по иконке в трее:
+## Стратегии
 
-- стратегии
-- Старт / Стоп
-- Автозапуск с Windows
-- Выход
+| Стратегия | Назначение |
+|-----------|------------|
+| Рекомендуемая | YouTube + Discord + Apps |
+| Только YouTube | минимальный профиль |
+| **Discord FIX** | update/login (SIMPLE FAKE ALT / badseq) — пробуй первой при update failed |
+| Discord ALT2 | запасной профиль (fake + ts) |
 
-## Что делает build.bat
+## Telegram Proxy
 
-1. Ставит .NET 8 SDK при необходимости
-2. Скачивает runtime (`winws`, `cygwin1.dll`, WinDivert, payload `*.bin`) в `payload\bin`
-3. Собирает self-contained single-file `DpiTray.exe`
-4. Кладёт exe + `bin` / `lists` / `strategies` в `dist\`
+В трее: **Telegram Proxy (TgWsProxy)** — официальный бинарь Flowseal с проверкой SHA256.  
+Не смешивается с winws; в Telegram: MTProto `127.0.0.1:1443`.
 
-## Структура
+## Безопасность
 
-```
-DpiTray/
-  build.bat
-  scripts/fetch-runtime.ps1
-  src/                     — исходники лаунчера
-  payload/
-    bin/                   — runtime (скачивается автоматически)
-    lists/                 — списки доменов
-    strategies/            — JSON-стратегии для winws
-  dist/                    — готовая сборка
-```
+См. [SECURITY.md](SECURITY.md): только официальные релизы, без сторонних «сборок» с RAT.
 
-## Лицензия / благодарности
+## Почему меньше лагает
 
-Лаунчер DpiTray — отдельный проект.
-Движок обхода DPI использует `winws` / WinDivert и идеи экосистемы zapret.
+- только hostlist (без `ipset-all` на весь интернет)
+- `--dpi-desync-cutoff` — desync только на рукопожатии
+- меньше repeats
+- без широкого `cloudflare.com` / game-filter
+
+## Списки
+
+- `lists/list-google.txt` — YouTube
+- `lists/list-discord.txt` — Discord / CDN
+- `lists/list-apps.txt` — StatLocker, Deadlock API, Deadlock Mod Manager, GameBanana
+
+Домены для приложений можно дописать в `list-apps.txt`.
+
+## Discord update failed
+
+1. `dist\СБРОС_DISCORD_CACHE.bat`
+2. стратегия **Только Discord** → Старт
+3. перезапуск Discord
+
+Runtime: `C:\ProgramData\DpiTray`

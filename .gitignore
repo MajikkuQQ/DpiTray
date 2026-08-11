@@ -6,3 +6,5 @@ dist/
 *.suo
 payload/bin/*
 !payload/bin/.gitkeep
+payload/tgproxy/*.exe
+!payload/tgproxy/SOURCE.txt
