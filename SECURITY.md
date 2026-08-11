@@ -1,20 +1,23 @@
-# Безопасность DpiTray
+# Безопасность
 
-## Чем отличаемся от «случайных сборок Flowseal»
+## Откуда лучше брать DpiTray
 
-- Исходники лаунчера открыты в этом репозитории.
-- `winws` / WinDivert скачиваются из известных raw-URL при `build.bat` (см. `scripts/fetch-runtime.ps1`).
-- **TgWsProxy** берётся только с официального релиза  
-  https://github.com/Flowseal/tg-ws-proxy/releases  
-  и проверяется по **SHA256** (`scripts/fetch-tgproxy.ps1`).
-- Не используем сторонние «моднутые» архивы/EXE с неизвестных зеркал — там как раз часто подсовывают RAT.
+Скачивай только из официальных релизов этого репозитория:  
+https://github.com/MajikkuQQ/DpiTray/releases
 
-## Что делать пользователю
+Исходники лаунчера открыты — можно собрать сам через `build.bat`.
 
-1. Качай DpiTray только из своего GitHub: https://github.com/MajikkuQQ/DpiTray  
-2. Не запускай чужие `general*.bat` / `service.bat` из непроверенных ZIP.  
-3. TgWsProxy — отдельный пункт в трее; он не вшит в winws.
+## Что скачивается при сборке
 
-## Discord
+- `winws` / WinDivert — через `scripts/fetch-runtime.ps1` из публичного репозитория с бинарниками
+- TgWsProxy — только с официального релиза [Flowseal/tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy/releases), с проверкой SHA256 (`scripts/fetch-tgproxy.ps1`)
 
-Стратегии `Discord FIX` / `Discord ALT2` основаны на рабочих профилях Flowseal (SIMPLE FAKE ALT / ALT2), без лишних бинарников.
+Не подкладывай в папку `bin` / `tgproxy` файлы из случайных архивов и «сборников» из чатов — бери то, что качает сама сборка, или сверяй хеши.
+
+## Права администратора
+
+WinDivert нужен для работы на уровне сети, поэтому DpiTray запрашивает права администратора. Это нормально для таких инструментов.
+
+## Благодарности
+
+Спасибо авторам [zapret](https://github.com/bol-van/zapret), [WinDivert](https://github.com/basil00/WinDivert), [zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) и [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy).

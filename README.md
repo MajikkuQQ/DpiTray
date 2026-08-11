@@ -1,55 +1,57 @@
 # DpiTray
 
-Трей-лаунчер для Windows: запускает `winws` с узкими hostlist-стратегиями (меньше пинга и поломок интернета).
+Небольшой трей-лаунчер для Windows: помогает открывать привычные сервисы, когда сеть их режет или сильно тормозит.
 
-## Запуск
+Запускает `winws` с узкими списками доменов — без «лечения» всего интернета сразу. Так меньше шансов сломать игры и обычный пинг.
+
+## Быстрый старт
 
 ```bat
 build.bat
 dist\START.bat
 ```
 
-В `START.bat` одно меню: запуск / починить Discord / логи.  
-В трее по умолчанию: **Рекомендуемая**.
+Или скачай готовый релиз, распакуй и запусти `START.bat` **от администратора**.
+
+В трее выбери стратегию и нажми **Старт (zapret + TG)**.
 
 ## Стратегии
 
-| Стратегия | Назначение |
-|-----------|------------|
-| **YouTube + Discord** | основная: рабочие профили YT и Discord в одной стратегии |
-| Только YouTube | минимальный профиль |
-| Discord FIX | только Discord (badseq) |
-| Расширенная | много сайтов РФ-throttle (+можно вместе с TG); без voice UDP Discord |
+| Стратегия | Зачем |
+|-----------|--------|
+| **YouTube + Discord** | основная — оба сервиса в одном профиле |
+| Только YouTube | если нужен только ролик |
+| Discord | если глючит именно Discord |
+| Расширенная | много сайтов, которые в РФ часто тормозят (без voice UDP Discord) |
 
-## Telegram Proxy
+Свои домены можно дописать в файлы в папке `lists`.
 
-В трее: **Telegram Proxy (TgWsProxy)** — официальный бинарь Flowseal с проверкой SHA256.  
-Не смешивается с winws; в Telegram: MTProto `127.0.0.1:1443`.
+## Telegram
+
+В трее есть пункт **Telegram (TgWsProxy)**. По умолчанию он стартует вместе с zapret.
+
+В Telegram: **Настройки → Данные и память → Прокси** → MTProto `127.0.0.1:1443` (secret смотри в окне TgWsProxy).
+
+## Если Discord пишет update failed
+
+1. В `START.bat` выбери пункт про Discord / кэш  
+2. Стратегия **Discord** → Старт  
+3. Перезапусти Discord
+
+Рабочие файлы лежат в `C:\ProgramData\DpiTray`.
 
 ## Безопасность
 
-См. [SECURITY.md](SECURITY.md): только официальные релизы, без сторонних «сборок» с RAT.
+Качай DpiTray из [релизов этого репозитория](https://github.com/MajikkuQQ/DpiTray/releases).  
+Подробности — в [SECURITY.md](SECURITY.md).
 
-## Почему меньше лагает
+## Благодарности
 
-- только hostlist (без `ipset-all` на весь интернет)
-- `--dpi-desync-cutoff` — desync только на рукопожатии
-- меньше repeats
-- без широкого `cloudflare.com` / game-filter
+DpiTray — просто удобная обёртка. Спасибо авторам проектов, без которых этого бы не было:
 
-## Списки
+- [bol-van/zapret](https://github.com/bol-van/zapret) — движок обхода DPI (`winws` и идеи стратегий)
+- [basil00/WinDivert](https://github.com/basil00/WinDivert) — перехват пакетов в Windows
+- [Flowseal/zapret-discord-youtube](https://github.com/Flowseal/zapret-discord-youtube) — готовые бинарники и рабочие профили для Discord/YouTube
+- [Flowseal/tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy) — локальный прокси для Telegram
 
-- `lists/list-google.txt` — YouTube
-- `lists/list-discord.txt` — Discord / CDN
-- `lists/list-apps.txt` — StatLocker, Deadlock API, Deadlock Mod Manager, GameBanana
-- `lists/list-extended.txt` — расширенный hostlist для стратегии «Расширенная»
-
-Домены можно дописать в нужный `.txt` (для расширенной — в `list-extended.txt`).
-
-## Discord update failed
-
-1. `dist\СБРОС_DISCORD_CACHE.bat`
-2. стратегия **Только Discord** → Старт
-3. перезапуск Discord
-
-Runtime: `C:\ProgramData\DpiTray`
+Если пользуетесь DpiTray — поддержите и оригинальные проекты.

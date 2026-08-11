@@ -7,7 +7,7 @@ $destDirs = @(
   "C:\ProgramData\DpiTray\tgproxy"
 )
 
-# Только официальный релиз Flowseal/tg-ws-proxy (не сторонние "сборки" с возможными RAT)
+# Официальный релиз Flowseal/tg-ws-proxy + проверка SHA256
 $url = "https://github.com/Flowseal/tg-ws-proxy/releases/download/v1.9.1/TgWsProxy_windows.exe"
 $expectedSha = "2823fcda2cdd209eb595cba75587c0fdbe40d6d863eed482794af1cca0c1b6fc"
 
